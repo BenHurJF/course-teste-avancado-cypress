@@ -133,7 +133,7 @@ describe('Hacker Stories', () => {
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
           .click()
-
+/// PARAMOS AQUIII
           cy.wait('@getStories')
 
         cy.get('.item').should('have.length', 20)
