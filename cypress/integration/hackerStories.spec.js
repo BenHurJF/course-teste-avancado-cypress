@@ -123,6 +123,18 @@ describe('Hacker Stories', () => {
         .should('be.visible')
     })
 
+    it.only('types and submits the form directly', () => {
+      cy.intercept(
+        'GET',
+        '**/*Submetendo Formulário diretamente com Submite!'
+      ).as('typesAndSubmitFormDirectly')
+      
+        cy.get('#search')
+        .clear()
+        .type('Submetendo Formulário diretamente com Submite!')
+        cy.get('form').submit()
+    })
+
     context.only('Last searches', () => {
       it('searches via the last searched term', () => {
         cy.get('#search')
@@ -133,7 +145,7 @@ describe('Hacker Stories', () => {
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
           .click()
-/// PARAMOS AQUIII
+
           cy.wait('@getStories')
 
         cy.get('.item').should('have.length', 20)
@@ -143,20 +155,27 @@ describe('Hacker Stories', () => {
         cy.get(`button:contains(${newTerm})`)
           .should('be.visible')
       })
-
-      it('shows a max of 5 buttons for the last searched terms', () => {
-        const faker = require('faker')
-
-        Cypress._.times(6, () => {
-          cy.get('#search')
-            .clear()
-            .type(`${faker.random.word()}{enter}`)
+      
+      Cypress._.times(6, () => {
+        it('shows a max of 5 buttons for the last searched terms', () => {
+          const faker = require('faker')
+  
+           cy.intercept(
+           'GET',
+           '**/*search**'
+          ).as('getRandomStories')
+  
+          Cypress._.times(6, () => {
+            cy.get('#search')
+              .clear()
+              .type(`${faker.random.word()}{enter}`)
+              cy.wait('@getRandomStories')
+          })
+  
+          cy.get('.last-searches button')
+            .should('have.length', 5)
         })
 
-        cy.assertLoadingIsShownAndHidden()
-
-        cy.get('.last-searches button')
-          .should('have.length', 5)
       })
     })
   })
