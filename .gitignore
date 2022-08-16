@@ -4,3 +4,4 @@ cypress/videos/
 node_modules/
 testes.spec.js
 **testes-forEach
+**testes-forEach.js
