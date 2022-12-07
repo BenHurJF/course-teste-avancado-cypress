@@ -3,4 +3,5 @@ cypress/screenshots/
 cypress/videos/
 node_modules/
 testes.spec.js
-*manipulacao-arrays.cy.js
+manipulacao-arrays.cy.js
+cypress.env.json
