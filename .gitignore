@@ -4,4 +4,5 @@ cypress/videos/
 node_modules/
 testes.spec.js
 manipulacao-arrays.cy.js
+testarDownload.cy.js
 cypress.env.json
