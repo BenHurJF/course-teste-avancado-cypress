@@ -86,42 +86,42 @@ describe('Hacker Stories', () => {
           'GET',
           `**/search?query=${initialTerm}&page=0`,
           { fixture: 'stories' }
-          ).as('buscaInitialTerm')
-    
+        ).as('buscaInitialTerm')
+
         cy.visit('/')
         cy.wait('@buscaInitialTerm')
       });
 
-    it('Mostrar o rodapé', () => {
-      cy.get('footer')
-        .should('be.visible')
-        .and('contain', 'Icons made by Freepik from www.flaticon.com')
-    });
-  
-    context('Lista de histórias', () => {
-      it.skip('mostra os dados corretos para todas as histórias renderizadas', () => { })
-  
-      it('Descartar 1 história e exibir histórias com 1 a menos', () => {
-        cy.get('.item')
-          .children('span')
-          .children('button').first()
-          .click()
-  
-        cy.get('.item').should('have.length', 1)
+      it('Mostrar o rodapé', () => {
+        cy.get('footer')
+          .should('be.visible')
+          .and('contain', 'Icons made by Freepik from www.flaticon.com')
+      });
+
+      context('Lista de histórias', () => {
+        it.skip('mostra os dados corretos para todas as histórias renderizadas', () => { })
+
+        it('Descartar 1 história e exibir histórias com 1 a menos', () => {
+          cy.get('.item')
+            .children('span')
+            .children('button').first()
+            .click()
+
+          cy.get('.item').should('have.length', 1)
+        })
+        context.skip('Ordenar por', () => {
+          it('Ordenar por titulo', () => { })
+
+          it('Ordenar por autor', () => { })
+
+          it('Ordenar por comentarios', () => { })
+
+          it('Ordenar por pontos', () => { })
+        })
+
       })
-      context.skip('Ordenar por', () => {
-        it('Ordenar por titulo', () => { })
-  
-        it('Ordenar por autor', () => { })
-  
-        it('Ordenar por comentarios', () => { })
-  
-        it('Ordenar por pontos', () => { })
-      })
-  
     })
-  })
-  
+
     // Contexto de its de Busca
     context('Search', () => {
       beforeEach(() => {
@@ -139,75 +139,74 @@ describe('Hacker Stories', () => {
 
         cy.visit('/')
         cy.wait('@getEmptyStories')
-  
+
         cy.get('#search')
           .clear()
       })
-  
+
       it('Digita e aperta ENTER', () => {
         cy.get('#search')
           .type(`${newTerm}{enter}`)
-  
+
         cy.wait('@getStories')
-  
+
         cy.get('.item').should('have.length', 2)
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
       })
-  
+
       it('Digita e clica no botão enviar', () => {
         cy.get('#search')
           .type(newTerm)
         cy.contains('Submit')
           .click()
-  
+
         cy.wait('@getStories')
-  
+
         cy.get('.item').should('have.length', 2)
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
       })
-  
-  
+
+
       // Apenas demonstrativo, o usuário REAL não teria possibilidade de buscar o termo dando submite no FORM!
       it('Digita e envia o formulário diretamente (Apenas Demonstração)', () => {
         cy.get('#search')
           .type(newTerm)
         cy.get('form').submit()
-  
+
         cy.get('@getStories')
-  
+
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible');
       });
-  
-  
+
+
       // Contexto de its de Ultimas Pesquisas
       context('Últimas pesquisas', () => {
-  
+
         it('Mostra um máximo de 5 botões para os últimos termos pesquisados', () => {
           cy.intercept(
             'GET',
             '**/search**',
             { fixture: 'empty' }
           ).as('buscarProximosTermosAleatorias')
-  
+
           const faker = require('faker')
-  
+
           Cypress._.times(6, () => {
             cy.get('#search')
               .clear()
               .type(`${faker.random.word()}{enter}`)
             cy.wait('@buscarProximosTermosAleatorias')
           });
-  
+
           cy.get('.last-searches button')
             .should('have.length', 5)
         });
       });
-
-  })
-});
+    })
+  });
 
   context('Simulando Erros de Servidor e Rede', () => {
     const serverError = 'Something went wrong ..';
