@@ -80,28 +80,18 @@ describe('Hacker Stories', () => {
   })
 
   context('Mockando a API', () => {
+    context('Rodapé e Lista de histórias', () => {
+      beforeEach(() => {
+        cy.intercept(
+          'GET',
+          `**/search?query=${initialTerm}&page=0`,
+          { fixture: 'stories' }
+          ).as('buscaInitialTerm')
+    
+        cy.visit('/')
+        cy.wait('@buscaInitialTerm')
+      });
 
-    beforeEach(() => {
-      cy.intercept(
-        'GET',
-        `**/search?query=${initialTerm}&page=0`,
-        { fixture: 'sotories' }
-        ).as('buscaInitialTerm')
-
-    // beforeEach(() => {
-    //   cy.intercept({
-    //     method: 'GET',
-    //     pathname: `**/search`,
-    //     query: {
-    //       query: initialTerm,
-    //       page: '0'
-    //     }
-    //   }
-    //   ).as('buscaInitialTerm')
-  
-      cy.visit('/')
-    });
-  
     it('Mostrar o rodapé', () => {
       cy.get('footer')
         .should('be.visible')
@@ -109,15 +99,9 @@ describe('Hacker Stories', () => {
     });
   
     context('Lista de histórias', () => {
-  
-      // Como a API é externa,
-      // Não posso controlar o que ele fornecerá ao frontend,
-      // e então, como posso afirmar nos dados?
-      // É por isso que este teste está sendo ignorado.
-      // TODO: Encontre uma maneira de testá-lo.
       it.skip('mostra os dados corretos para todas as histórias renderizadas', () => { })
   
-      it.only('Descartar 1 história e exibir histórias com 1 a menos', () => {
+      it('Descartar 1 história e exibir histórias com 1 a menos', () => {
         cy.get('.item')
           .children('span')
           .children('button').first()
@@ -125,12 +109,6 @@ describe('Hacker Stories', () => {
   
         cy.get('.item').should('have.length', 1)
       })
-  
-      // Como a API é externa,
-      // Não posso controlar o que ele fornecerá ao frontend,
-      // e então, como posso testar a ordenação?
-      // É por isso que esses testes estão sendo ignorados.
-      // TODO: Encontre uma maneira de testá-los.
       context.skip('Ordenar por', () => {
         it('Ordenar por titulo', () => { })
   
@@ -142,22 +120,25 @@ describe('Hacker Stories', () => {
       })
   
     })
-  
+  })
   
     // Contexto de its de Busca
     context('Search', () => {
-  
-      // Antes de cada it nesse Contexto acima
       beforeEach(() => {
-        cy.intercept({
-          method: 'GET',
-          pathname: `**/*search`,
-          query: {
-            query: newTerm,
-            page: '0'
-          }
-        }
-        ).as('buscaNewTerm')
+        cy.intercept(
+          'GET',
+          `**/*search?query=${initialTerm}&page=0`,
+          { fixture: 'empty' }
+        ).as('getEmptyStories')
+
+        cy.intercept(
+          'GET',
+          `**/*search?query=${newTerm}&page=0`,
+          { fixture: 'stories' }
+        ).as('getStories')
+
+        cy.visit('/')
+        cy.wait('@getEmptyStories')
   
         cy.get('#search')
           .clear()
@@ -167,12 +148,9 @@ describe('Hacker Stories', () => {
         cy.get('#search')
           .type(`${newTerm}{enter}`)
   
-        cy.wait('@buscaNewTerm')
+        cy.wait('@getStories')
   
-        cy.get('.item').should('have.length', 20)
-        cy.get('.item')
-          .first()
-          .should('contain', newTerm)
+        cy.get('.item').should('have.length', 2)
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
       })
@@ -183,12 +161,9 @@ describe('Hacker Stories', () => {
         cy.contains('Submit')
           .click()
   
-        cy.wait('@buscaNewTerm')
+        cy.wait('@getStories')
   
-        cy.get('.item').should('have.length', 20)
-        cy.get('.item')
-          .first()
-          .should('contain', newTerm)
+        cy.get('.item').should('have.length', 2)
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
       })
@@ -200,7 +175,7 @@ describe('Hacker Stories', () => {
           .type(newTerm)
         cy.get('form').submit()
   
-        cy.get('@buscaNewTerm')
+        cy.get('@getStories')
   
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible');
@@ -213,7 +188,8 @@ describe('Hacker Stories', () => {
         it('Mostra um máximo de 5 botões para os últimos termos pesquisados', () => {
           cy.intercept(
             'GET',
-            '**/search**'
+            '**/search**',
+            { fixture: 'empty' }
           ).as('buscarProximosTermosAleatorias')
   
           const faker = require('faker')
