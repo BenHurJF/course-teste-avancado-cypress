@@ -99,7 +99,21 @@ describe('Hacker Stories', () => {
       });
 
       context('Lista de histórias', () => {
-        it.skip('mostra os dados corretos para todas as histórias renderizadas', () => { })
+        it.only('Mostra os dados corretos para todas as histórias renderizadas', () => { 
+          const stories = require('../fixtures/stories');
+          
+          cy.get('.item').first()
+          .should('contain', stories.hits[0].title)
+          .and('contain', stories.hits[0].author)
+          .and('contain', stories.hits[0].num_comments)
+          .and('contain', stories.hits[0].points)
+
+          cy.get('.item').last()
+          .should('contain', stories.hits[1].title)
+          .and('contain', stories.hits[1].author)
+          .and('contain', stories.hits[1].num_comments)
+          .and('contain', stories.hits[1].points)
+        })
 
         it('Descartar 1 história e exibir histórias com 1 a menos', () => {
           cy.get('.item')
