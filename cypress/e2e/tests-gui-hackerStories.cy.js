@@ -372,7 +372,7 @@ describe('Hacker Stories', { tags: 'critical' } , () => {
 
 });
 
-it('Mostra o estado "Loading ..." antes de mostrar resultados ', () => {
+it('Mostra o estado "Loading ..." antes de mostrar resultados', { tags: 'critical' }, () => {
         cy.intercept(
           'GET',
           '**/search**',
