@@ -138,6 +138,7 @@ describe('Hacker Stories', () => {
         context('Ordenar por', () => {
           it('Ordenar por titulo', () => {
             cy.get('.list-header-button:contains(Title)')
+              .should('be.visible')
               .as('titleHeader')
               .click()
 
@@ -166,6 +167,7 @@ describe('Hacker Stories', () => {
               .and('contain', stories.hits[0].author)
 
             cy.get('.list-header-button:contains(Author)')
+              .should('be.visible')
               .click()
 
             cy.get('.item')
@@ -191,6 +193,7 @@ describe('Hacker Stories', () => {
 
           it('Ordenar por pontos', () => {
             cy.get('.list-header-button:contains(Points)')
+              .should('be.visible')
               .as('pointsHeader')
               .click()
 
@@ -241,6 +244,7 @@ describe('Hacker Stories', () => {
 
       it('Digita e aperta ENTER', () => {
         cy.get('#search')
+          .should('be.visible')
           .type(`${newTerm}{enter}`)
 
         cy.wait('@getStories')
@@ -252,6 +256,7 @@ describe('Hacker Stories', () => {
 
       it('Digita e clica no botão enviar', () => {
         cy.get('#search')
+          .should('be.visible')
           .type(newTerm)
         cy.contains('Submit')
           .click()
@@ -267,6 +272,7 @@ describe('Hacker Stories', () => {
       // Apenas demonstrativo, o usuário REAL não teria possibilidade de buscar o termo dando submite no FORM!
       it('Digita e envia o formulário diretamente (Apenas Demonstração)', () => {
         cy.get('#search')
+          .should('be.visible')
           .type(newTerm)
         cy.get('form').submit()
 
@@ -279,7 +285,7 @@ describe('Hacker Stories', () => {
       // Contexto de its de Ultimas Pesquisas
       context('Últimas pesquisas', () => {
 
-        it('Mostra um máximo de 5 botões para os últimos termos pesquisados', () => {
+        it.only('Mostra um máximo de 5 botões para os últimos termos pesquisados', () => {
           cy.intercept(
             'GET',
             '**/search**',
@@ -295,8 +301,10 @@ describe('Hacker Stories', () => {
             cy.wait('@buscarProximosTermosAleatorias')
           });
 
-          cy.get('.last-searches button')
+          cy.get('.last-searches').within(() => {
+            cy.get('button')
             .should('have.length', 5)
+          }) 
         });
       });
     })
