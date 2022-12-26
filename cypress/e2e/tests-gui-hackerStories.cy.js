@@ -1,6 +1,6 @@
 /// <reference types="cypress"/>
 
-describe('Hacker Stories', () => {
+describe('Hacker Stories', { tags: 'critical' } , () => {
   const initialTerm = 'React';
   const newTerm = 'Cypress';
 
@@ -372,7 +372,7 @@ describe('Hacker Stories', () => {
 
 });
 
-it.only('Mostra o estado "Loading ..." antes de mostrar resultados ', () => {
+it('Mostra o estado "Loading ..." antes de mostrar resultados ', () => {
         cy.intercept(
           'GET',
           '**/search**',
