@@ -5,7 +5,6 @@ describe('Hacker Stories', () => {
   const newTerm = 'Cypress';
 
   context('Batendo na API Real', () => {
-
     beforeEach(() => {
       cy.intercept({
         method: 'GET',
@@ -64,11 +63,17 @@ describe('Hacker Stories', () => {
 
       cy.wait('@buscaNewTerm')
 
+      cy.getLocalStorage('search')
+        .should('be.equal', newTerm)
+
       cy.get(`button:contains(${initialTerm})`)
         .should('be.visible')
         .click({ force: true })
 
       cy.wait('@buscaInitialTerm')
+
+      cy.getLocalStorage('search')
+        .should('be.equal', initialTerm)
 
       cy.get('.item').should('have.length', 20)
 
@@ -249,6 +254,9 @@ describe('Hacker Stories', () => {
 
         cy.wait('@getStories')
 
+        cy.getLocalStorage('search')
+          .should('be.equal', newTerm)
+
         cy.get('.item').should('have.length', 2)
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible')
@@ -262,6 +270,9 @@ describe('Hacker Stories', () => {
           .click()
 
         cy.wait('@getStories')
+
+        cy.getLocalStorage('search')
+          .should('be.equal', newTerm)
 
         cy.get('.item').should('have.length', 2)
         cy.get(`button:contains(${initialTerm})`)
@@ -278,6 +289,9 @@ describe('Hacker Stories', () => {
 
         cy.get('@getStories')
 
+        cy.getLocalStorage('search')
+          .should('be.equal', newTerm)
+
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible');
       });
@@ -285,7 +299,7 @@ describe('Hacker Stories', () => {
       // Contexto de its de Ultimas Pesquisas
       context('Últimas pesquisas', () => {
 
-        it.only('Mostra um máximo de 5 botões para os últimos termos pesquisados', () => {
+        it('Mostra um máximo de 5 botões para os últimos termos pesquisados', () => {
           cy.intercept(
             'GET',
             '**/search**',
@@ -295,16 +309,19 @@ describe('Hacker Stories', () => {
           const faker = require('faker')
 
           Cypress._.times(6, () => {
+            const randomWord = faker.random.word();
             cy.get('#search')
               .clear()
-              .type(`${faker.random.word()}{enter}`)
+              .type(`${randomWord}{enter}`)
             cy.wait('@buscarProximosTermosAleatorias')
+            cy.getLocalStorage('search')
+              .should('be.equal', randomWord)
           });
 
           cy.get('.last-searches').within(() => {
             cy.get('button')
-            .should('have.length', 5)
-          }) 
+              .should('have.length', 5)
+          })
         });
       });
     })
@@ -354,3 +371,20 @@ describe('Hacker Stories', () => {
   })
 
 });
+
+it.only('Mostra o estado "Loading ..." antes de mostrar resultados ', () => {
+        cy.intercept(
+          'GET',
+          '**/search**',
+          {
+            delay: 1000,
+            fixture: '../fixtures/stories'
+          }
+        ).as('getDelayLoading')
+
+        cy.visit('/')
+        cy.assertLoadingIsShownAndHidden()
+        cy.get('.item').should('have.length', 2)
+
+        cy.get('@getDelayLoading')
+})
