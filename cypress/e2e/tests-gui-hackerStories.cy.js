@@ -34,7 +34,9 @@ describe('Hacker Stories', () => {
       cy.get('.item').should('have.length', 20)
         .and('not.have.length.above', 20)
 
-      cy.contains('More').click()
+      cy.contains('More')
+        .should('be.visible')
+        .click()
 
       cy.wait('@proximasStories').then(({ response }) => {
         expect(response.body.hits).to.have.length(20)
@@ -55,7 +57,9 @@ describe('Hacker Stories', () => {
       }
       ).as('buscaNewTerm')
 
-      cy.get('#search').clear()
+      cy.get('#search')
+        .should('be.visible')
+        .clear()
         .type(`${newTerm}{enter}`)
 
       cy.wait('@buscaNewTerm')
@@ -69,13 +73,11 @@ describe('Hacker Stories', () => {
       cy.get('.item').should('have.length', 20)
 
       cy.get('.item').eq(1)
+        .should('be.visible')
         .contains(initialTerm)
 
       cy.get(`button:contains(${newTerm})`)
         .should('be.visible')
-
-      // cy.window().its('localStorage').then((sessao) => {
-      //   console.log(sessao)
     });
   })
 
@@ -99,38 +101,112 @@ describe('Hacker Stories', () => {
       });
 
       context('Lista de histórias', () => {
-        it.only('Mostra os dados corretos para todas as histórias renderizadas', () => { 
-          const stories = require('../fixtures/stories');
-          
-          cy.get('.item').first()
-          .should('contain', stories.hits[0].title)
-          .and('contain', stories.hits[0].author)
-          .and('contain', stories.hits[0].num_comments)
-          .and('contain', stories.hits[0].points)
+        const stories = require('../fixtures/stories');
 
-          cy.get('.item').last()
-          .should('contain', stories.hits[1].title)
-          .and('contain', stories.hits[1].author)
-          .and('contain', stories.hits[1].num_comments)
-          .and('contain', stories.hits[1].points)
+        it('Mostra os dados corretos para todas as histórias renderizadas', () => {
+          cy.get('.item')
+            .first()
+            .should('be.visible')
+            .should('contain', stories.hits[0].title)
+            .and('contain', stories.hits[0].author)
+            .and('contain', stories.hits[0].num_comments)
+            .and('contain', stories.hits[0].points)
+          cy.get(`.item a:contains(${stories.hits[0].title})`)
+            .should('have.attr', 'href', stories.hits[0].url)
+
+          cy.get('.item')
+            .last()
+            .should('be.visible')
+            .should('contain', stories.hits[1].title)
+            .and('contain', stories.hits[1].author)
+            .and('contain', stories.hits[1].num_comments)
+            .and('contain', stories.hits[1].points)
+          cy.get(`.item a:contains(${stories.hits[1].title})`)
+            .should('have.attr', 'href', stories.hits[1].url)
         })
 
         it('Descartar 1 história e exibir histórias com 1 a menos', () => {
           cy.get('.item')
+            .should('be.visible')
             .children('span')
             .children('button').first()
             .click()
 
           cy.get('.item').should('have.length', 1)
         })
-        context.skip('Ordenar por', () => {
-          it('Ordenar por titulo', () => { })
 
-          it('Ordenar por autor', () => { })
+        context('Ordenar por', () => {
+          it('Ordenar por titulo', () => {
+            cy.get('.list-header-button:contains(Title)')
+              .as('titleHeader')
+              .click()
 
-          it('Ordenar por comentarios', () => { })
+            cy.get('.item')
+              .first()
+              .should('be.visible')
+              .and('contain', stories.hits[0].title)
+            cy.get(`.item a:contains(${stories.hits[0].title})`)
+              .should('have.attr', 'href', stories.hits[0].url)
 
-          it('Ordenar por pontos', () => { })
+            cy.get('@titleHeader')
+              .click()
+
+            cy.get('.item')
+              .first()
+              .should('be.visible')
+              .and('contain', stories.hits[1].title)
+            cy.get(`.item a:contains(${stories.hits[1].title})`)
+              .should('have.attr', 'href', stories.hits[1].url)
+          })
+
+          it('Ordenar por autor', () => {
+            cy.get('.item')
+              .first()
+              .should('be.visible')
+              .and('contain', stories.hits[0].author)
+
+            cy.get('.list-header-button:contains(Author)')
+              .click()
+
+            cy.get('.item')
+              .first()
+              .should('be.visible')
+              .and('contain', stories.hits[1].author)
+          })
+
+          it('Ordenar por comentarios', () => {
+            cy.get('.item')
+              .first()
+              .should('be.visible')
+              .and('contain', stories.hits[0].num_comments)
+
+            cy.get('.list-header-button:contains(Comments)')
+              .click()
+
+            cy.get('.item')
+              .first()
+              .should('be.visible')
+              .and('contain', stories.hits[1].num_comments)
+          })
+
+          it('Ordenar por pontos', () => {
+            cy.get('.list-header-button:contains(Points)')
+              .as('pointsHeader')
+              .click()
+
+            cy.get('.item')
+              .first()
+              .should('be.visible')
+              .and('contain', stories.hits[0].points)
+
+            cy.get('@pointsHeader')
+              .click()
+
+            cy.get('.item')
+              .first()
+              .should('be.visible')
+              .and('contain', stories.hits[1].points)
+          })
         })
 
       })
@@ -156,6 +232,11 @@ describe('Hacker Stories', () => {
 
         cy.get('#search')
           .clear()
+      })
+
+      it('Não mostra nenhuma história quando nenhuma é retornada', () => {
+        cy.get('.item')
+          .should('not.exist')
       })
 
       it('Digita e aperta ENTER', () => {
@@ -194,7 +275,6 @@ describe('Hacker Stories', () => {
         cy.get(`button:contains(${initialTerm})`)
           .should('be.visible');
       });
-
 
       // Contexto de its de Ultimas Pesquisas
       context('Últimas pesquisas', () => {
