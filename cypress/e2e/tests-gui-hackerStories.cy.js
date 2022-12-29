@@ -1,6 +1,6 @@
 /// <reference types="cypress"/>
 
-describe('Hacker Stories', { tags: 'critical' } , () => {
+describe('Hacker Stories', { tags: 'critical' }, () => {
   const initialTerm = 'React';
   const newTerm = 'Cypress';
 
@@ -373,18 +373,50 @@ describe('Hacker Stories', { tags: 'critical' } , () => {
 });
 
 it('Mostra o estado "Loading ..." antes de mostrar resultados', { tags: 'critical' }, () => {
-        cy.intercept(
-          'GET',
-          '**/search**',
-          {
-            delay: 1000,
-            fixture: '../fixtures/stories'
-          }
-        ).as('getDelayLoading')
+  cy.intercept(
+    'GET',
+    '**/search**',
+    {
+      delay: 1000,
+      fixture: '../fixtures/stories'
+    }
+  ).as('getDelayLoading')
 
-        cy.visit('/')
-        cy.assertLoadingIsShownAndHidden()
-        cy.get('.item').should('have.length', 2)
+  cy.visit('/')
+  cy.assertLoadingIsShownAndHidden()
+  cy.get('.item').should('have.length', 2)
 
-        cy.get('@getDelayLoading')
+  cy.get('@getDelayLoading')
+})
+
+it.only('Desafio: Verificar que o cache está funcionando da Aplicação "HackerNewsSearch"', () => {
+  const termFirst = "cypress";
+  const lastTerm = "react";
+  let count = 0;
+
+  cy.intercept(
+    'GET',
+    `**/search?query=${termFirst}&page=0&hitsPerPage=100**`, () => {
+      count += 1
+    }).as('termFirst')
+
+  cy.intercept(
+    'GET',
+    `**/search?query=${lastTerm}&page=0&hitsPerPage=100**`, () => {
+    }).as('termLast')
+
+  cy.visit('https://infinite-savannah-93746.herokuapp.com/')
+
+  cy.search(termFirst).then(() => {
+    cy.wait('@termFirst')
+    expect(count).to.be.equal(1)
+  })
+
+  cy.search(lastTerm)
+  cy.wait('@termLast')
+
+  cy.search(termFirst).then(() => {
+    expect(count).to.be.equal(1)
+  })
+
 })
