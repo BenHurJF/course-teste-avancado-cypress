@@ -389,34 +389,34 @@ it('Mostra o estado "Loading ..." antes de mostrar resultados', { tags: 'critica
   cy.get('@getDelayLoading')
 })
 
-it.only('Desafio: Verificar que o cache está funcionando da Aplicação "HackerNewsSearch"', () => {
-  const termFirst = "cypress";
-  const lastTerm = "react";
+it('Desafio: Verificar que o cache está funcionando da Aplicação "HackerNewsSearch"', () => {
+  let termFirst = "cypress";
+  let lastTerm = "react";
   let count = 0;
-
+  
   cy.intercept(
     'GET',
-    `**/search?query=${termFirst}&page=0&hitsPerPage=100**`, () => {
+    `**/search?query=${termFirst}**`, () => {
       count += 1
     }).as('termFirst')
-
-  cy.intercept(
-    'GET',
-    `**/search?query=${lastTerm}&page=0&hitsPerPage=100**`, () => {
-    }).as('termLast')
-
-  cy.visit('https://infinite-savannah-93746.herokuapp.com/')
-
-  cy.search(termFirst).then(() => {
-    cy.wait('@termFirst')
-    expect(count).to.be.equal(1)
-  })
-
-  cy.search(lastTerm)
-  cy.wait('@termLast')
-
-  cy.search(termFirst).then(() => {
-    expect(count).to.be.equal(1)
-  })
+    
+    cy.intercept(
+      'GET',
+      `**/search?query=${lastTerm}**`, () => {
+      }).as('termLast')
+      
+    cy.visit('https://infinite-savannah-93746.herokuapp.com/')
+    cy.wait(2000)
+      cy.search(termFirst).then(() => {
+      cy.wait('@termFirst')
+      expect(count).to.be.equal(1)
+    })
+  
+    cy.search(lastTerm)
+    cy.wait('@termLast')
+  
+    cy.search(termFirst).then(() => {
+      expect(count).to.be.equal(1)
+    })
 
 })
